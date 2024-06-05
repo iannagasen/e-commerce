@@ -31,14 +31,11 @@ public class ProductServiceTest {
 
   @Test
   public void ProductService_createProduct_returnsProduct() {
-    
-    ProductEntity entity = new ProductEntity(1, "productname", "a description");
-    Product product = new Product(1, "name", "a description");
+    ProductEntity entity = new ProductEntity(1L, "productname", "a description");
+    Product product = new Product(1L, "productname", "a description");
 
     when(sequence.generateSequence(ProductEntity.SEQUENCE_NAME)).thenReturn(Mono.just(1L));
     when(productRepository.save(any(ProductEntity.class))).thenReturn(Mono.just(entity));
-    when(productRepository.toProductEntityModel(product)).thenReturn(entity);
-    when(productRepository.toProductRestModel(entity)).thenReturn(product);
 
     Mono<Product> savedProduct = productService.createProduct(product);
 

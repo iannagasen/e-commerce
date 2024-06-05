@@ -21,11 +21,11 @@ public class ProductEntity {
   public @Transient static final String SEQUENCE_NAME = "products_sequence";
 
   private @Id String id;
-  private @Indexed(unique=true) int productId;
+  private @Indexed(unique=true) Long productId;
   private String name;
   private String description;
 
-  public ProductEntity(int productId, String name, String description) {
+  public ProductEntity(Long productId, String name, String description) {
     this.productId = productId;
     this.name = name;
     this.description = description;
