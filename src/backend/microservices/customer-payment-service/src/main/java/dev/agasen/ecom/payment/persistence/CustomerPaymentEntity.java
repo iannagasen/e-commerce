@@ -24,6 +24,6 @@ public class CustomerPaymentEntity {
   private @Indexed(unique=true) Long orderId;
   private Long customerId;
   private PaymentStatus status;
-  private Long amount;
+  private int amount;
 
 }

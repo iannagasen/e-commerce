@@ -9,5 +9,5 @@ public record CustomerPayment(
   Long orderId, 
   Long customerId, 
   PaymentStatus status, 
-  Long amount
+  int amount
 ) {}

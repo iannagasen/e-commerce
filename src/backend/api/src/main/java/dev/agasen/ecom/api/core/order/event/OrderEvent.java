@@ -15,7 +15,7 @@ public interface OrderEvent extends DomainEvent, OrderSaga {
                  Long customerId,
                  int quantity,
                  int unitPrice,
-                 Long totalAmount) implements OrderEvent {}
+                 int totalAmount) implements OrderEvent {}
 
   @Builder
   record Cancelled(Long orderId,

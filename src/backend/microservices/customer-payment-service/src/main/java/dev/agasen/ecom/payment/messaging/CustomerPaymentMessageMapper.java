@@ -11,10 +11,10 @@ import dev.agasen.ecom.api.core.payment.model.CustomerPayment;
 import dev.agasen.ecom.api.core.payment.model.PaymentProcessRequest;
 import reactor.core.publisher.Mono;
 
-@Component
-public class CustomerPaymentMessageMapper {
+
+public record CustomerPaymentMessageMapper() {
   
-  public PaymentProcessRequest toPaymentProcessRequest(OrderEvent.Created event) {
+  public static PaymentProcessRequest toPaymentProcessRequest(OrderEvent.Created event) {
     return PaymentProcessRequest.builder()
         .customerId(event.customerId())
         .orderId(event.orderId())
@@ -22,7 +22,7 @@ public class CustomerPaymentMessageMapper {
         .build();
   }
 
-  public PaymentEvent toPaymentDeductedEvent(CustomerPayment p) {
+  public static PaymentEvent toPaymentDeductedEvent(CustomerPayment p) {
     return PaymentEvent.Deducted.builder()
         .paymentId(p.id())
         .orderId(p.orderId())
@@ -32,7 +32,7 @@ public class CustomerPaymentMessageMapper {
         .build();
   }
 
-  public Function<Throwable, Mono<PaymentEvent>> paymentDeclinedEventMapper(OrderEvent.Created e) {
+  public static Function<Throwable, Mono<PaymentEvent>> paymentDeclinedEventMapper(OrderEvent.Created e) {
     return exc -> Mono.fromSupplier(
         () -> PaymentEvent.Declined.builder()
             .orderId(e.orderId())
@@ -44,7 +44,7 @@ public class CustomerPaymentMessageMapper {
     );
   }
 
-  public PaymentEvent toPaymentRefundedEvent(CustomerPayment p) {
+  public static PaymentEvent toPaymentRefundedEvent(CustomerPayment p) {
     return PaymentEvent.Refunded.builder()
         .paymentId(p.id())
         .orderId(p.orderId())

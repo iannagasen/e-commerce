@@ -20,7 +20,8 @@ spring.cloud:
           "auto.offset.reset": "earliest"
           # "bootstrap.servers": "localhost:9094"
           # ? where the DomainEvent class is located -- why? 
-          "spring.json.trusted.packages": "dev.agasen.ecom.api.event.*"
+          # "spring.json.trusted.packages": "dev.agasen.ecom.api.core.order.event.*"
+          "spring.json.trusted.packages": "*" 
         producer-properties:
           # "bootstrap.servers": "localhost:9094"
           "value.serializer": org.springframework.kafka.support.serializer.JsonSerializer

@@ -22,13 +22,12 @@ import reactor.core.publisher.Mono;
 public class OrderPaymentEventProcessor implements OrderEventProcessor<PaymentEvent>{
 
   private final CustomerPaymentEventService paymentService;
-  private final CustomerPaymentMessageMapper paymentMsgMapper;
 
   @Override
   public Mono<PaymentEvent> handle(Created event) {
     return paymentService
-        .process(paymentMsgMapper.toPaymentProcessRequest(event))
-        .map(paymentMsgMapper::toPaymentDeductedEvent)
+        .process(CustomerPaymentMessageMapper.toPaymentProcessRequest(event))
+        .map(CustomerPaymentMessageMapper::toPaymentDeductedEvent)
         .doOnNext(e -> log.info("payment processed: {}", e))
         .transform(filterAndHandleExceptions(event));
   }
@@ -36,7 +35,7 @@ public class OrderPaymentEventProcessor implements OrderEventProcessor<PaymentEv
   @Override
   public Mono<PaymentEvent> handle(Cancelled event) {
     return paymentService.refund(event.orderId())
-        .map(this.paymentMsgMapper::toPaymentRefundedEvent)
+        .map(CustomerPaymentMessageMapper::toPaymentRefundedEvent)
         .doOnNext(e -> log.info("payment refunded: {}", e))
         .doOnError(ex -> log.error("error while processing refund", ex));
   }
@@ -55,6 +54,6 @@ public class OrderPaymentEventProcessor implements OrderEventProcessor<PaymentEv
         // * if Event is already process, just return an empty mono (wc will eventually cancel the pipeline)
         .onErrorResume(EventAlreadyProcessedException.class, exc -> Mono.empty())
         // * for every other exception, map to Mono<PaymentEvent> with message = exception
-        .onErrorResume(paymentMsgMapper.paymentDeclinedEventMapper(e));
+        .onErrorResume(CustomerPaymentMessageMapper.paymentDeclinedEventMapper(e));
   } 
 }

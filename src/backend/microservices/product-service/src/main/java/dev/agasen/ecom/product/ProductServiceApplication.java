@@ -56,4 +56,6 @@ public class ProductServiceApplication {
     resolver.resolveIndexFor(ProductEntity.class).forEach(e -> indexOps.ensureIndex(e).block());
   }
 
+
+
 }
