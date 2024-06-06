@@ -21,6 +21,7 @@ import dev.agasen.ecom.payment.persistence.CustomerBalanceRepository;
 import dev.agasen.ecom.payment.persistence.CustomerPaymentEntity;
 import dev.agasen.ecom.payment.persistence.CustomerPaymentRepository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
@@ -41,6 +42,7 @@ public class PaymentServiceTest extends BaseIntegrationTest {
    */
   private static final Sinks.Many<OrderEvent> requestSink    = Sinks.many().unicast().onBackpressureBuffer();
   private static final Sinks.Many<PaymentEvent> responseSink = Sinks.many().unicast().onBackpressureBuffer();
+  private static final Flux<PaymentEvent> responseFlux = responseSink.asFlux().cache(0);
 
   @Autowired private CustomerBalanceRepository balanceRepository;
   @Autowired private CustomerPaymentRepository paymentRepository;
@@ -58,27 +60,66 @@ public class PaymentServiceTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void processPaymentTest() {
-    var orderCreatedEvent = KafkaTestDataUtils.createOrderCreatedEvent(1L, 1L, 2, 3);
+  public void deductAndRefundTest() {
+    var customerId = 1L;
+    var orderCreatedEvent = KafkaTestDataUtils.createOrderCreatedEvent(customerId, 1L, 2, 3);
 
     /**
      * ! listen to PaymentEvent (w/c is responseSink)
      */
-    responseSink.asFlux()
+    responseFlux
         // ! do First before subscribe
         .doFirst(() -> requestSink.tryEmitNext(orderCreatedEvent))    
         // ! equivalent to take(1)
         .next()
-        .timeout(Duration.ofSeconds(100))
+        .timeout(Duration.ofSeconds(5))
         .cast(PaymentEvent.Deducted.class)
         .as(StepVerifier::create)
         .consumeNextWith(e -> {
-          assertNotNull(e.paymentId());
-          assertEquals(orderCreatedEvent.orderId(), e.orderId());
-          assertEquals(6, e.amount());
+            assertNotNull(e.paymentId());
+            assertEquals(orderCreatedEvent.orderId(), e.orderId());
+            assertEquals(6, e.amount());
         })
-        .verifyComplete()
-        ;
+        .verifyComplete();
+
+    // check balance
+    balanceRepository.findByCustomerId(customerId)
+        .as(StepVerifier::create)
+        .consumeNextWith(customerBalance -> assertEquals(94L, customerBalance.getBalance())) // 100 - 2 * 3 = 94
+        .verifyComplete();
+
+    // duplicate event
+    responseFlux
+        .doFirst(() -> requestSink.tryEmitNext(orderCreatedEvent))    
+        .next()
+        .timeout(Duration.ofSeconds(5), Mono.empty()) // this is empty since we are expecting empty in
+        .cast(PaymentEvent.Deducted.class)
+        .as(StepVerifier::create)
+        .verifyComplete();
+
+    // cancelled event
+    var cancelledEvent = KafkaTestDataUtils.createOrderCancelledEvent(orderCreatedEvent.orderId());
+
+    responseFlux
+          .doFirst(() -> requestSink.tryEmitNext(cancelledEvent))
+          .next()
+          .timeout(Duration.ofSeconds(5))
+          .cast(PaymentEvent.Refunded.class)
+          .as(StepVerifier::create)
+          .consumeNextWith(e -> {
+            assertNotNull(e.paymentId());
+            assertEquals(orderCreatedEvent.orderId(), e.orderId());
+            assertEquals(6L, e.amount());
+          })
+          .verifyComplete();
+
+    // check balance for refund
+    balanceRepository.findByCustomerId(customerId)
+        .as(StepVerifier::create)
+        .consumeNextWith(customerBalance -> assertEquals(100L, customerBalance.getBalance())) // balance should go back to 100L
+        .verifyComplete();
+
+    
   }
 
 

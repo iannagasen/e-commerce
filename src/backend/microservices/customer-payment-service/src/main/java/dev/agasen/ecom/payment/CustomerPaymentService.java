@@ -71,7 +71,7 @@ public class CustomerPaymentService implements CustomerPaymentEventService, Cust
     return sequenceGeneratorService.generateSequence(CustomerPaymentEntity.SEQUENCE_NAME)
         .map(seq -> paymentMapper.toEntityModel(seq, paymentRequest))
         .flatMap(payment -> paymentRepo.setPaymentStatus(payment, PaymentStatus.DEDUCTED))
-        .zipWhen(payment -> balanceRepo.setBalance(balance, balance.getBalance() + payment.getAmount()))
+        .zipWhen(payment -> balanceRepo.setBalance(balance, balance.getBalance() - payment.getAmount()))
         .map(tuple -> tuple.getT1());
   }
 
