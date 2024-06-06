@@ -19,6 +19,7 @@ import dev.agasen.ecom.payment.persistence.CustomerPaymentEntity;
 import dev.agasen.ecom.payment.persistence.CustomerPaymentRepository;
 import dev.agasen.ecom.payment.rest.CustomerPaymentMapper;
 import dev.agasen.ecom.util.event.DuplicateEventValidator;
+import dev.agasen.ecom.util.mongo.SequenceGeneratorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -32,6 +33,7 @@ public class CustomerPaymentService implements CustomerPaymentEventService, Cust
   private final CustomerBalanceRepository balanceRepo;
   private final CustomerPaymentMapper paymentMapper;
   private final DuplicateEventValidator duplicateEventValidator;
+  private final SequenceGeneratorService sequenceGeneratorService;
 
   private static final Mono<CustomerBalanceEntity> CUSTOMER_NOT_FOUND = Mono.error(new CustomerNotFoundException());
   private static final Mono<CustomerBalanceEntity> INSUFFICIENT_BALANCE = Mono.error(new InsufficientBalanceException());
@@ -55,20 +57,22 @@ public class CustomerPaymentService implements CustomerPaymentEventService, Cust
   @Override
   public Mono<CustomerPayment> refund(Long orderId) {
     return paymentRepo.findByOrderId(orderId)
-    .switchIfEmpty(PAYMENT_NOT_FOUND)
-    .filter(payment -> PaymentStatus.DEDUCTED.equals(payment.getStatus()))
-    .switchIfEmpty(CANT_REFUND_UNDEDUCTED_PAYMENT)
-    .zipWhen(payment -> balanceRepo.findByCustomerId(payment.getCustomerId()))
-    .flatMap(tuple -> doRefund(tuple.getT2(), tuple.getT1()))
-    .doOnNext(paymentEntity -> log.info("Payment processed for {}", paymentEntity.getOrderId()))
-    .map(paymentMapper::toRestModel);
+        .switchIfEmpty(PAYMENT_NOT_FOUND)
+        .filter(payment -> PaymentStatus.DEDUCTED.equals(payment.getStatus()))
+        .switchIfEmpty(CANT_REFUND_UNDEDUCTED_PAYMENT)
+        .zipWhen(payment -> balanceRepo.findByCustomerId(payment.getCustomerId()))
+        .flatMap(tuple -> doRefund(tuple.getT2(), tuple.getT1()))
+        .doOnNext(paymentEntity -> log.info("Payment processed for {}", paymentEntity.getOrderId()))
+        .map(paymentMapper::toRestModel);
   }
 
   @Transactional
   private Mono<CustomerPaymentEntity> doProcessPayment(CustomerBalanceEntity balance, PaymentProcessRequest paymentRequest) {
-    CustomerPaymentEntity payment = paymentMapper.toEntityModel(paymentRequest);
-    return balanceRepo.setBalance(balance, balance.getBalance() - payment.getAmount()).then(
-           paymentRepo.setPaymentStatus(payment, PaymentStatus.DEDUCTED));
+    return sequenceGeneratorService.generateSequence(CustomerPaymentEntity.SEQUENCE_NAME)
+        .map(seq -> paymentMapper.toEntityModel(seq, paymentRequest))
+        .flatMap(payment -> paymentRepo.setPaymentStatus(payment, PaymentStatus.DEDUCTED))
+        .zipWhen(payment -> balanceRepo.setBalance(balance, balance.getBalance() + payment.getAmount()))
+        .map(tuple -> tuple.getT1());
   }
 
   @Transactional

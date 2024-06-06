@@ -1,6 +1,7 @@
 package dev.agasen.ecom.payment.persistence;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,10 +19,11 @@ import lombok.Setter;
 @Document(collection = "customer_payments")
 public class CustomerPaymentEntity {
 
+  public @Transient static final String SEQUENCE_NAME = "cust_payment_sequence";
+
   private @Id String id;
-  // ! do I need an explicit id for every entity
-  // private @Indexed Long paymentId;
-  private @Indexed(unique=true) Long orderId;
+  private @Indexed(unique=true) Long paymentId;
+  private Long orderId;
   private Long customerId;
   private PaymentStatus status;
   private int amount;

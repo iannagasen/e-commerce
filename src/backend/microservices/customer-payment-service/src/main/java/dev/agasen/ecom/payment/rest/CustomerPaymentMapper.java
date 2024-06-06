@@ -13,7 +13,7 @@ public class CustomerPaymentMapper implements RestEntityMapper<CustomerPayment, 
   @Override
   public CustomerPayment toRestModel(CustomerPaymentEntity e) {
     return CustomerPayment.builder()
-      .id(e.getId())
+      .id(e.getPaymentId())
       .status(e.getStatus())
       .customerId(e.getCustomerId())
       .orderId(e.getOrderId())
@@ -24,7 +24,7 @@ public class CustomerPaymentMapper implements RestEntityMapper<CustomerPayment, 
   @Override
   public CustomerPaymentEntity toEntityModel(CustomerPayment r) {
     return CustomerPaymentEntity.builder()
-      .id(r.id())
+      .paymentId(r.id())
       .status(r.status())
       .customerId(r.customerId())
       .orderId(r.orderId())
@@ -34,6 +34,15 @@ public class CustomerPaymentMapper implements RestEntityMapper<CustomerPayment, 
 
   public CustomerPaymentEntity toEntityModel(PaymentProcessRequest r) {
     return CustomerPaymentEntity.builder()
+      .customerId(r.customerId())
+      .orderId(r.orderId())
+      .amount(r.amount())
+      .build();
+  }
+
+  public CustomerPaymentEntity toEntityModel(Long paymentId, PaymentProcessRequest r) {
+    return CustomerPaymentEntity.builder()
+      .paymentId(paymentId)
       .customerId(r.customerId())
       .orderId(r.orderId())
       .amount(r.amount())

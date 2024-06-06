@@ -54,6 +54,8 @@ public class OrderPaymentEventProcessor implements OrderEventProcessor<PaymentEv
         // * if Event is already process, just return an empty mono (wc will eventually cancel the pipeline)
         .onErrorResume(EventAlreadyProcessedException.class, exc -> Mono.empty())
         // * for every other exception, map to Mono<PaymentEvent> with message = exception
-        .onErrorResume(CustomerPaymentMessageMapper.paymentDeclinedEventMapper(e));
+        // .onErrorResume(CustomerPaymentMessageMapper.paymentDeclinedEventMapper(e));
+        // .doOnError(ex -> log.error("Can not process request", ex));
+        ;
   } 
 }

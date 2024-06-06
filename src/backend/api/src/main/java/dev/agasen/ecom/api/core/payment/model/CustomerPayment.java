@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record CustomerPayment(
-  String id, 
+  Long id, 
   Long orderId, 
   Long customerId, 
   PaymentStatus status, 
