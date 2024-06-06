@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.Duration;
+import java.util.Random;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,6 +18,8 @@ import org.springframework.test.context.TestPropertySource;
 
 import dev.agasen.ecom.api.core.order.event.OrderEvent;
 import dev.agasen.ecom.api.core.payment.event.PaymentEvent;
+import dev.agasen.ecom.api.exceptions.CustomerNotFoundException;
+import dev.agasen.ecom.api.exceptions.PaymentNotFoundException;
 import dev.agasen.ecom.payment.persistence.CustomerBalanceEntity;
 import dev.agasen.ecom.payment.persistence.CustomerBalanceRepository;
 import dev.agasen.ecom.payment.persistence.CustomerPaymentEntity;
@@ -60,7 +64,7 @@ public class PaymentServiceTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void deductAndRefundTest() {
+  public void processPaymentTest() {
     var customerId = 1L;
     var orderCreatedEvent = KafkaTestDataUtils.createOrderCreatedEvent(customerId, 1L, 2, 3);
 
@@ -122,7 +126,40 @@ public class PaymentServiceTest extends BaseIntegrationTest {
     
   }
 
+  @Test
+  public void refundWithoutDeductTest() {
+    /**
+     * emit order cancelled where we dont have entry on our table
+     */
+    var cancelledEvent = KafkaTestDataUtils.createOrderCancelledEvent(new Random().nextLong());
+    
+    responseFlux
+        .doFirst(() -> requestSink.tryEmitNext(cancelledEvent))
+        .next()
+        .timeout(Duration.ofSeconds(5), Mono.empty())
+        .as(StepVerifier::create)
+        .expectError(PaymentNotFoundException.class);
+  }  
 
+  @Test
+  public void refundCustomerNotFoundTest() {
+    var NOTFOUND_CUSTOMER_ID = 9999L;
+    var orderCreatedEvent = KafkaTestDataUtils.createOrderCreatedEvent(NOTFOUND_CUSTOMER_ID, 1L, 2, 3);
+
+    responseFlux
+        .doFirst(() -> requestSink.tryEmitNext(orderCreatedEvent))
+        .next()
+        .timeout(Duration.ofSeconds(2))
+        .cast(PaymentEvent.Declined.class)
+        .as(StepVerifier::create)
+        .consumeNextWith(msg -> {
+          assertEquals(orderCreatedEvent.orderId(), msg.orderId());
+          assertEquals(CustomerNotFoundException.MESSAGE, msg.message());
+        })
+        .verifyComplete();
+  }  
+  
+  
   @TestConfiguration
   static class TestConfig {
 

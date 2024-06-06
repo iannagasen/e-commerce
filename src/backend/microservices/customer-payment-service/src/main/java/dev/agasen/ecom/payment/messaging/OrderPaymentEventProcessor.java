@@ -27,7 +27,7 @@ public class OrderPaymentEventProcessor implements OrderEventProcessor<PaymentEv
   public Mono<PaymentEvent> handle(Created event) {
     return paymentService
         .process(CustomerPaymentMessageMapper.toPaymentProcessRequest(event))
-        .map(CustomerPaymentMessageMapper::toPaymentDeductedEvent)
+        .map(CustomerPaymentMessageMapper::toPaymentDeductedEvent) 
         .doOnNext(e -> log.info("payment processed: {}", e))
         .transform(filterAndHandleExceptions(event));
   }

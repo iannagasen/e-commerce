@@ -62,7 +62,7 @@ public class CustomerPaymentService implements CustomerPaymentEventService, Cust
         .switchIfEmpty(CANT_REFUND_UNDEDUCTED_PAYMENT)
         .zipWhen(payment -> balanceRepo.findByCustomerId(payment.getCustomerId()))
         .flatMap(tuple -> doRefund(tuple.getT2(), tuple.getT1()))
-        .doOnNext(paymentEntity -> log.info("Payment processed for {}", paymentEntity.getOrderId()))
+        .doOnNext(paymentEntity -> log.info("Payment refunded for {}", paymentEntity.getOrderId()))
         .map(paymentMapper::toRestModel);
   }
 

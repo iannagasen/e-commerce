@@ -27,7 +27,7 @@ public class OrderEventProcessorConfig {
   public Function<Flux<Message<OrderEvent>>, Flux<Message<PaymentEvent>>> processor() {
     return flux -> flux
         .map(MessageConverter::toRecord)
-        .doOnNext(r -> log.info("Customer payment receivedP{}", r.message()))
+        .doOnNext(r -> log.info("Customer payment received{}", r.message()))
         .concatMap(r -> this.eventProcessor
             .process(r.message())
             // * use doOnSuccess rather than doOnNext since Event.Completted will emit an empty mono
