@@ -71,8 +71,6 @@ public class PaymentServiceTest extends BaseIntegrationTest {
         .next()
         .timeout(Duration.ofSeconds(100))
         .cast(PaymentEvent.Deducted.class)
-        // why is this declined??
-        // .cast(PaymentEvent.Declined.class)
         .as(StepVerifier::create)
         .consumeNextWith(e -> {
           assertNotNull(e.paymentId());
