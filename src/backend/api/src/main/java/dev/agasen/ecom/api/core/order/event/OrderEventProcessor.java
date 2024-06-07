@@ -22,5 +22,4 @@ public interface OrderEventProcessor<R extends DomainEvent> extends EventProcess
 
   Mono<R> handle(OrderEvent.Created e);
 
-  
 }

@@ -19,7 +19,7 @@ import reactor.core.publisher.Flux;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class OrderEventProcessorConfig {
+public class OrderEventHandler {
 
   private final OrderEventProcessor<PaymentEvent> eventProcessor;
 
@@ -41,5 +41,5 @@ public class OrderEventProcessorConfig {
           .setHeader(KafkaHeaders.KEY, event.orderId().toString())
           .build();
   }
-  
+
 }

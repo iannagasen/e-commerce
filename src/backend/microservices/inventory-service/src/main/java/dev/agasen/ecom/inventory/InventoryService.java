@@ -7,6 +7,7 @@ import dev.agasen.ecom.api.core.inventory.model.InventoryUpdate;
 import dev.agasen.ecom.api.core.inventory.rest.InventoryRestService;
 import dev.agasen.ecom.inventory.persistence.InventoryRepository;
 import dev.agasen.ecom.inventory.persistence.InventoryUpdateRepository;
+import dev.agasen.ecom.inventory.rest.InventoryRestMappers;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,19 +19,22 @@ public class InventoryService implements InventoryRestService {
   private final InventoryRepository inventoryRepo;
   private final InventoryUpdateRepository inventoryHistoryRepo;
   
-  public @Override Mono<Inventory> getInventory(Long productId) {
+  @Override
+  public Mono<Inventory> getInventory(Long productId) {
     return inventoryRepo
       .findByProductId(productId)
-      .map(i -> inventoryRepo.toInventoryRestModel(i, null));
+      .map(InventoryRestMappers.inventoryMapper(null));
   }
 
-  public @Override Flux<Inventory> getInventories() {
+  @Override
+  public Flux<Inventory> getInventories() {
     return inventoryRepo
       .findAll()
-      .map(i -> inventoryRepo.toInventoryRestModel(i, null));
+      .map(InventoryRestMappers.inventoryMapper(null));
   }
 
-  public @Override Flux<InventoryUpdate> getInventoryHistory(Long productId) {
+  @Override
+  public Flux<InventoryUpdate> getInventoryHistory(Long productId) {
     return inventoryHistoryRepo
       .findAllByProductId(productId)
       .map(inventoryHistoryRepo::toRestModel);

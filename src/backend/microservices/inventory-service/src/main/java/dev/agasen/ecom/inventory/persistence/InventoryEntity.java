@@ -16,6 +16,7 @@ import lombok.Setter;
 @Document(collection = "inventory")
 public class InventoryEntity {
   private @Id String id;
+  private @Indexed(unique=true) Long inventoryId;
   private @Indexed(unique=true) Long productId;
   private int stock;
 }

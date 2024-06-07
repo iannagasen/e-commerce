@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.Duration;
 import java.util.Random;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -22,7 +21,6 @@ import dev.agasen.ecom.api.exceptions.CustomerNotFoundException;
 import dev.agasen.ecom.api.exceptions.PaymentNotFoundException;
 import dev.agasen.ecom.payment.persistence.CustomerBalanceEntity;
 import dev.agasen.ecom.payment.persistence.CustomerBalanceRepository;
-import dev.agasen.ecom.payment.persistence.CustomerPaymentEntity;
 import dev.agasen.ecom.payment.persistence.CustomerPaymentRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

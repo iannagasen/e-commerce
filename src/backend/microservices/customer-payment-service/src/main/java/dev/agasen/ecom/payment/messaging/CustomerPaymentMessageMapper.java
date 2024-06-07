@@ -12,7 +12,7 @@ import dev.agasen.ecom.api.core.payment.model.PaymentProcessRequest;
 import reactor.core.publisher.Mono;
 
 
-public record CustomerPaymentMessageMapper() {
+public static class CustomerPaymentMessageMapper {
   
   public static PaymentProcessRequest toPaymentProcessRequest(OrderEvent.Created event) {
     return PaymentProcessRequest.builder()
