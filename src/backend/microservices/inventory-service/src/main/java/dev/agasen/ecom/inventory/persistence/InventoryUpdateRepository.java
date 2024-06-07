@@ -7,9 +7,6 @@ import reactor.core.publisher.Flux;
 
 public interface InventoryUpdateRepository extends ReactiveMongoRepository<InventoryUpdateEntity, String> {
 
-  Flux<InventoryUpdateEntity> findAllByProductId(Long productId);
+  Flux<InventoryUpdate> findAllByProductId(Long productId);
 
-  default InventoryUpdate toRestModel(InventoryUpdateEntity e) {
-    return new InventoryUpdate(e.getProductId(), e.getType(), e.getDateTime());
-  }
 }
