@@ -4,14 +4,14 @@ import java.util.function.UnaryOperator;
 
 import org.springframework.stereotype.Component;
 
-import dev.agasen.ecom.api.core.order.event.OrderEvent;
-import dev.agasen.ecom.api.core.order.event.OrderEventProcessor;
-import dev.agasen.ecom.api.core.order.event.OrderEvent.Cancelled;
-import dev.agasen.ecom.api.core.order.event.OrderEvent.Completted;
-import dev.agasen.ecom.api.core.order.event.OrderEvent.Created;
 import dev.agasen.ecom.api.core.payment.event.CustomerPaymentEventService;
 import dev.agasen.ecom.api.core.payment.event.PaymentEvent;
 import dev.agasen.ecom.api.exceptions.EventAlreadyProcessedException;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent;
+import dev.agasen.ecom.api.saga.order.event.OrderEventProcessor;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent.Cancelled;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent.Completted;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent.Created;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -27,7 +27,7 @@ public class OrderPaymentEventProcessor implements OrderEventProcessor<PaymentEv
   public Mono<PaymentEvent> handle(Created event) {
     return paymentService
         .process(CustomerPaymentMessageMapper.toPaymentProcessRequest(event))
-        .map(CustomerPaymentMessageMapper::toPaymentDeductedEvent) 
+        .map(CustomerPaymentMessageMapper::toPaymentDeductedEvent)
         .doOnNext(e -> log.info("payment processed: {}", e))
         .transform(filterAndHandleExceptions(event));
   }

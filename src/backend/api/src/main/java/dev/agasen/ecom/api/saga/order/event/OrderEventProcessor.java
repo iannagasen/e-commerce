@@ -1,4 +1,4 @@
-package dev.agasen.ecom.api.core.order.event;
+package dev.agasen.ecom.api.saga.order.event;
 
 import dev.agasen.ecom.api.event.DomainEvent;
 import dev.agasen.ecom.api.event.EventProcessor;

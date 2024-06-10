@@ -15,10 +15,10 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 
-import dev.agasen.ecom.api.core.order.event.OrderEvent;
 import dev.agasen.ecom.api.core.payment.event.PaymentEvent;
 import dev.agasen.ecom.api.exceptions.CustomerNotFoundException;
 import dev.agasen.ecom.api.exceptions.PaymentNotFoundException;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent;
 import dev.agasen.ecom.payment.persistence.CustomerBalanceEntity;
 import dev.agasen.ecom.payment.persistence.CustomerBalanceRepository;
 import dev.agasen.ecom.payment.persistence.CustomerPaymentRepository;

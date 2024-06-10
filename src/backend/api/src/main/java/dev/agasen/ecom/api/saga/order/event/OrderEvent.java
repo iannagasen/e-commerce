@@ -1,4 +1,4 @@
-package dev.agasen.ecom.api.core.order.event;
+package dev.agasen.ecom.api.saga.order.event;
 
 import java.time.Instant;
 

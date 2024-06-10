@@ -9,9 +9,9 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
 import dev.agasen.ecom.api.core.inventory.event.InventoryEvent;
-import dev.agasen.ecom.api.core.order.event.OrderEvent;
-import dev.agasen.ecom.api.core.order.event.OrderEventProcessor;
 import dev.agasen.ecom.api.event.util.MessageConverter;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent;
+import dev.agasen.ecom.api.saga.order.event.OrderEventProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;

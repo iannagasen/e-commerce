@@ -1,14 +1,12 @@
 package dev.agasen.ecom.inventory.messaging;
 
-import java.util.function.Function;
-
 import dev.agasen.ecom.api.core.inventory.model.InventoryDeductionRequest;
-import dev.agasen.ecom.api.core.order.event.OrderEvent;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent;
 
 public record InventoryMessageMappers() {
 
-  public static Function<OrderEvent.Created, InventoryDeductionRequest> toInventoryDeductionRequest() {
-    return orderCreatedEvent -> InventoryDeductionRequest.builder()
+  public static InventoryDeductionRequest toInventoryDeductionRequest(OrderEvent.Created orderCreatedEvent) {
+    return InventoryDeductionRequest.builder()
         .quantity(orderCreatedEvent.quantity())
         .productId(orderCreatedEvent.orderId())
         .orderId(orderCreatedEvent.orderId())

@@ -3,7 +3,7 @@ package dev.agasen.ecom.payment;
 import java.time.Instant;
 import java.util.Random;
 
-import dev.agasen.ecom.api.core.order.event.OrderEvent;
+import dev.agasen.ecom.api.saga.order.event.OrderEvent;
 
 public record KafkaTestDataUtils() {
 
