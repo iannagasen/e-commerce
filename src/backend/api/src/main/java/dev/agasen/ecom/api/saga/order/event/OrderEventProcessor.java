@@ -1,7 +1,7 @@
 package dev.agasen.ecom.api.saga.order.event;
 
 import dev.agasen.ecom.api.event.DomainEvent;
-import dev.agasen.ecom.api.event.EventProcessor;
+import dev.agasen.ecom.api.event.processor.EventProcessor;
 import reactor.core.publisher.Mono;
 
 public interface OrderEventProcessor<R extends DomainEvent> extends EventProcessor<OrderEvent, R> {

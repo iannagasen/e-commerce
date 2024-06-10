@@ -4,7 +4,7 @@ import dev.agasen.ecom.api.core.inventory.event.InventoryEvent.Declined;
 import dev.agasen.ecom.api.core.inventory.event.InventoryEvent.Deducted;
 import dev.agasen.ecom.api.core.inventory.event.InventoryEvent.Restored;
 import dev.agasen.ecom.api.event.DomainEvent;
-import dev.agasen.ecom.api.event.EventProcessor;
+import dev.agasen.ecom.api.event.processor.EventProcessor;
 import reactor.core.publisher.Mono;
 
 public interface InventoryEventProcessor<R extends DomainEvent> extends EventProcessor<InventoryEvent, R>{

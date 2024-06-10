@@ -4,7 +4,7 @@ import dev.agasen.ecom.api.core.payment.event.PaymentEvent.Declined;
 import dev.agasen.ecom.api.core.payment.event.PaymentEvent.Deducted;
 import dev.agasen.ecom.api.core.payment.event.PaymentEvent.Refunded;
 import dev.agasen.ecom.api.event.DomainEvent;
-import dev.agasen.ecom.api.event.EventProcessor;
+import dev.agasen.ecom.api.event.processor.EventProcessor;
 import reactor.core.publisher.Mono;
 
 public interface PaymentEventProcessor<R extends DomainEvent> extends EventProcessor<PaymentEvent, R>{

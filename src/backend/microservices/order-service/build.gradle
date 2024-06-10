@@ -8,7 +8,9 @@ group = 'dev.agasen.ecom'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '21'
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 }
 
 configurations {
@@ -22,10 +24,11 @@ repositories {
 }
 
 ext {
-	set('springCloudVersion', "2023.0.1")
+	set('springCloudVersion', "2023.0.2")
 }
 
 dependencies {
+
 	implementation project(':src:backend:api') 
   implementation project(':src:backend:util')
 
@@ -41,7 +44,6 @@ dependencies {
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-
 
 dependencyManagement {
 	imports {
