@@ -9,6 +9,7 @@ import lombok.Builder;
 @Builder
 public record Inventory(
   Long id,
+  Long orderId,
   Long productId,
   int stock,
   @JsonInclude(JsonInclude.Include.NON_NULL) List<InventoryUpdate> history

@@ -21,7 +21,7 @@ public interface InventoryEvent extends DomainEvent, OrderSaga {
                   int quantity,
                   Instant createdAt) implements InventoryEvent {};
 
-    @Builder
+  @Builder
   record Declined(Long orderId,
                   Long productId,
                   int quantity,

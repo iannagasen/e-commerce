@@ -28,8 +28,7 @@ public class OrderEventService implements OrderEventAbstractService {
     var entity = OrderMapper.toPurchaseOrderEntity(req);
     return this.purchaseOrderRepo.save(entity)
         .map(OrderMapper::toPurchaseOrder)
-        .doOnNext(eventListener::emitOrderCreated)
-        ;
+        .doOnNext(eventListener::emitOrderCreated);
     
   }
 

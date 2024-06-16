@@ -10,9 +10,11 @@ import dev.agasen.ecom.api.saga.order.event.OrderEvent.Cancelled;
 import dev.agasen.ecom.api.saga.order.event.OrderEvent.Completted;
 import dev.agasen.ecom.api.saga.order.event.OrderEvent.Created;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class OrderInventoryEventProcessor implements OrderEventProcessor<InventoryEvent> {
 
@@ -20,8 +22,10 @@ public class OrderInventoryEventProcessor implements OrderEventProcessor<Invento
 
   @Override
   public Mono<InventoryEvent> handle(Created event) {
-    // eventService.deduct(InventoryMessageMappers.toInventoryDeductionRequest(event))
-    throw new UnsupportedOperationException("Unimplemented method 'handle'");
+    return eventService
+        .deduct(InventoryMessageMappers.toInventoryDeductionRequest(event))
+        .doOnNext(inv -> log.info("inventory deduction processed {}", inv))
+        .map(InventoryMessageMappers::toInventoryDeductedEvent);
   }
 
   @Override

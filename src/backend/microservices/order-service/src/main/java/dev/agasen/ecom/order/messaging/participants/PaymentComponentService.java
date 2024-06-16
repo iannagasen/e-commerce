@@ -1,4 +1,4 @@
-package dev.agasen.ecom.order;
+package dev.agasen.ecom.order.messaging.participants;
 
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 public class PaymentComponentService implements OrderComponentFetcher.Payment, OrderComponentListener.Payment {
 
   private final OrderComponentRepository repo;
-  
 
   @Override
   public Mono<OrderPayment> getComponent(Long orderId) {
@@ -26,14 +25,22 @@ public class PaymentComponentService implements OrderComponentFetcher.Payment, O
   @Override
   public Mono<Void> onSuccess(OrderPayment message) {
     return this.repo.findOrderPaymentByOrderId(message.orderId())
-        .switchIfEmpty(saveIfNotYetProcessed(message, true))
+        .switchIfEmpty(Mono.defer(() -> {
+            var entity = OrderMapper.toOrderPaymentEntity(message);
+            entity.setSuccessful(true);
+            return this.repo.save(entity);
+        }))
         .then();
   }
 
   @Override
   public Mono<Void> onFailure(OrderPayment message) {
-    // ! TODO
     return this.repo.findOrderPaymentByOrderId(message.orderId())
+        .switchIfEmpty(Mono.defer(() -> {
+            var entity = OrderMapper.toOrderPaymentEntity(message);
+            entity.setSuccessful(false);
+            return this.repo.save(entity);
+        }))
         .then();
   }
 
@@ -43,14 +50,6 @@ public class PaymentComponentService implements OrderComponentFetcher.Payment, O
         .doOnNext(e -> e.setStatus(message.status()))
         .flatMap(this.repo::save)
         .then();
-  }
-
-  private Mono<OrderComponentEntity.Payment> saveIfNotYetProcessed(OrderPayment payment, boolean successful) {
-    return Mono.defer(() -> {
-      var entity = OrderMapper.toOrderPaymentEntity(payment);
-      entity.setSuccessful(successful);
-      return this.repo.save(entity);
-    });
   }
 
 }

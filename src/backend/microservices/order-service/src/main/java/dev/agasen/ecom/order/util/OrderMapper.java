@@ -1,7 +1,10 @@
 package dev.agasen.ecom.order.util;
 
+import org.springframework.data.domain.Sort.Order;
+
 import dev.agasen.ecom.api.saga.order.event.OrderStatus;
 import dev.agasen.ecom.api.saga.order.model.OrderComponent;
+import dev.agasen.ecom.api.saga.order.model.OrderComponent.OrderInventory;
 import dev.agasen.ecom.api.saga.order.model.OrderCreateRequest;
 import dev.agasen.ecom.api.saga.order.model.OrderDetails;
 import dev.agasen.ecom.api.saga.order.model.PurchaseOrder;
@@ -49,6 +52,16 @@ public record OrderMapper() {
         .build();
   }
 
+  public static OrderComponentEntity.Payment toOrderPaymentEntity(OrderComponent.OrderPayment op, boolean successful) {
+    return OrderComponentEntity.Payment.builder()
+        .orderId(op.orderId())
+        .paymentId(op.paymentId())
+        .status(op.status())
+        .message(op.message())
+        .successful(successful)
+        .build();
+  }
+
   public static OrderComponent.OrderPayment toOrderPayment(OrderComponentEntity.Payment op) {
     return OrderComponent.OrderPayment.builder()
         .orderId(op.getOrderId())
@@ -83,4 +96,32 @@ public record OrderMapper() {
         .payment(p)
         .build();
   }
+
+  public static OrderComponentEntity.Inventory toOrderInventoryEntity(OrderInventory message) {
+    return OrderComponentEntity.Inventory.builder()
+        .orderId(message.orderId())
+        .inventoryId(message.inventoryId())
+        .status(message.status())
+        .message(message.message())
+        .build();
+  }
+
+  public static OrderComponentEntity.Shipping toOrderShippingEntity(OrderComponent.OrderShipment message) {
+    return OrderComponentEntity.Shipping.builder()
+        .orderId(message.orderId())
+        .shippingId(message.shippingId())
+        .status(message.status())
+        .message(message.message())
+        .build();
+  }
+
+  public static OrderComponent.OrderShipment toOrderShipment(OrderComponentEntity.Shipping oi) {
+    return OrderComponent.OrderShipment.builder()
+        .orderId(oi.getOrderId())
+        .shippingId(oi.getShippingId())
+        .status(oi.getStatus())
+        .message(oi.getMessage())
+        .build();
+  }
+
 }
